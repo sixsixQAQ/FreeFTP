@@ -1,7 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 project(FreeFTPClient LANGUAGES CXX)
 
-set(CMAKE_PREFIX_PATH F:/Qt/6.2.4/msvc2019_64)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -26,10 +25,10 @@ set(PROJECT_SOURCES
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-	Qt6::Core
-	Qt6::Gui
-	Qt6::Widgets
-    Qt6::StateMachine
+	Qt::Core
+	Qt::Gui
+	Qt::Widgets
+    Qt::StateMachine
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE "./include")
