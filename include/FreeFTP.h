@@ -21,9 +21,10 @@ private:
 
 private Q_SLOTS:
 	void slotEnterStateConnecting () const;
+	void slotUpdateListView (const std::vector<std::string>& files);
 signals:
 	void signalConnectionFailed () const;
-	void signalConnectionSucceeded () const;
+	void signalConnectionSucceeded (const std::vector<std::string>&files) const;
 private:
 	QStateMachine *m_uiStateMachine = nullptr;
 	QState *m_stateUnconnected		= nullptr;

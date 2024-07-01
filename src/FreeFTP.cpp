@@ -4,6 +4,10 @@
 #include "ui_FreeFTP.h"
 
 #include <QFile>
+#include <QMessageBox>
+#include <QStandardItemModel>
+#include <QStringListModel>
+#include <iostream>
 
 void
 FreeFTP::initUi()
@@ -22,10 +26,9 @@ FreeFTP::initUi()
 	ui->lineEditPassword->setEchoMode (QLineEdit::EchoMode::Password);
 }
 
-FreeFTP::FreeFTP (QWidget *parent) : QWidget (parent), ui(std::make_shared<Ui::FreeFTPClass>())
+FreeFTP::FreeFTP (QWidget *parent) : QWidget (parent), ui (std::make_shared<Ui::FreeFTPClass>())
 {
 	initUi();
-
 	m_uiStateMachine   = new QStateMachine (this);
 	m_stateConnecting  = new QState (m_uiStateMachine);
 	m_stateConnected   = new QState (m_uiStateMachine);
@@ -37,24 +40,40 @@ FreeFTP::FreeFTP (QWidget *parent) : QWidget (parent), ui(std::make_shared<Ui::F
 	defineConnectedState();
 
 	connect (m_stateConnecting, &QState::entered, this, &FreeFTP::slotEnterStateConnecting);
-
+	connect (this, &FreeFTP::signalConnectionSucceeded, this, &FreeFTP::slotUpdateListView);
 	m_uiStateMachine->start();
 }
 
 void
 FreeFTP::slotEnterStateConnecting() const
 {
-	FTPUtil::connectToServer (
+	auto util = FTPUtil (
 		ui->lineEditHost->text().toStdString(),
 		ui->lineEditUser->text().toStdString(),
-		ui->lineEditPassword->text().toStdString(),
-		[=] (bool succeeded) {
-			if (succeeded)
-				emit signalConnectionSucceeded();
-			else
+		ui->lineEditPassword->text().toStdString()
+	);
+	util.listFile (
+		ui->labelCurrDir->text().toStdString(),
+		[=] (bool succeeded, const std::vector<std::string> &result) {
+			if (succeeded) {
+				emit signalConnectionSucceeded (result);
+			} else {
+				QMessageBox (QMessageBox::Icon::Information, "Connection failed", "Failed to connect to server").exec();
 				emit signalConnectionFailed();
+			}
 		}
 	);
+}
+
+void
+FreeFTP::slotUpdateListView (const std::vector<std::string> &files)
+{
+	auto model = new QStandardItemModel (this);
+	ui->listViewFiles->setModel (model);
+	model->clear();
+	for (auto &i : files) {
+		model->appendRow (new QStandardItem (QString::fromStdString (i)));
+	}
 }
 
 void
@@ -74,6 +93,7 @@ FreeFTP::defineConnectingState()
 	state->assignProperty (ui->btnConnecting, "visible", true);
 	state->assignProperty (ui->btnConnect, "visible", false);
 	state->assignProperty (ui->btnDisconnect, "visible", false);
+
 	state->addTransition (this, &FreeFTP::signalConnectionSucceeded, m_stateConnected);
 	state->addTransition (this, &FreeFTP::signalConnectionFailed, m_stateUnconnected);
 }
@@ -85,6 +105,8 @@ FreeFTP::defineConnectedState()
 	state->assignProperty (ui->btnDisconnect, "visible", true);
 	state->assignProperty (ui->btnConnect, "visible", false);
 	state->assignProperty (ui->btnConnecting, "visible", false);
+
+	state->addTransition (ui->btnDisconnect, &QPushButton::clicked, m_stateUnconnected);
 }
 
 FreeFTP::~FreeFTP()
