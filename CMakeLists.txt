@@ -11,6 +11,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/3rdparty/libcurl-vc-x64-release-dll-ipv6-sspi-schannel")
 
+set(Qt6_DIR "F:/Qt/6.5.3/msvc2019_64/lib/cmake/Qt6")
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets StateMachine)
 find_package(curl REQUIRED MODULE)
 
