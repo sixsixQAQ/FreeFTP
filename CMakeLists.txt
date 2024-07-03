@@ -20,20 +20,21 @@ FILE(GLOB UI "ui/*.ui")
 FILE(GLOB SRC "src/*.cpp")
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS "./ui")
-set(PROJECT_SOURCES
-	${INCLUDE}
-	${UI}
-	${SRC}
-)
+set(PROJECT_SOURCES ${INCLUDE} ${UI} ${SRC})
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE FALSE)
 target_link_libraries(${PROJECT_NAME} PUBLIC
-	Qt::Core
-	Qt::Gui
-	Qt::Widgets
-    Qt::StateMachine
-	curl
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        Qt6::StateMachine
+        curl
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE "./include")
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:curl> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+)
