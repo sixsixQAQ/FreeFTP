@@ -11,7 +11,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/3rdparty/libcurl-vc-x64-release-dll-ipv6-sspi-schannel")
 
-set(Qt6_DIR "F:/Qt/6.5.3/msvc2019_64/lib/cmake/Qt6")
+set(QT_PATH "E:/Qt/6.5.3/msvc2019_64")
+set (CMAKE_PREFIX_PATH ${QT_PATH})
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets StateMachine)
 find_package(curl REQUIRED MODULE)
 
@@ -35,6 +36,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PRIVATE "./include")
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:curl> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:curl> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
+        COMMAND "${QT_PATH}/bin/windeployqt.exe" --dir "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.exe"
 )

@@ -2,7 +2,7 @@
 .vscode
 .idea
 out
-./*build*
+*build*
 CMakePresets.json
 CMakeSettings.json
 CMakeUserPresets.json

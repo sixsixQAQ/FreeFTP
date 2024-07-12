@@ -1,5 +1,6 @@
 #include "StrUtil.hpp"
 
+#include <algorithm>
 #include <sstream>
 
 std::vector<std::string>
